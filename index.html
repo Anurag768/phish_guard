@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PhishGuard | Advanced Detection System</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Main Styles -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body data-theme="dark">
+
+    <!-- Floating icons (optional, currently unused) -->
+    <div id="floatingIcons"></div>
+
+    <!-- TOP BAR -->
+    <div class="system-status">
+        <span>
+            <i class="fa-solid fa-circle-dot status-dot success"></i>
+            SYSTEM ONLINE
+        </span>
+        <span>
+            <i class="fa-solid fa-shield-halved"></i> DB: UPDATED
+        </span>
+
+
+    <!-- MAIN CONTAINER -->
+    <div class="main-container">
+
+        <div class="header">
+            <h1>PhishGuard Pro</h1>
+            <p>Digital Threat & Social Engineering Detection</p>
+        </div>
+
+        <div class="tabs">
+            <button type="button" class="tab-btn active" onclick="switchTab('url', event)">
+                <i class="fa-solid fa-globe"></i> Link Scanner
+            </button>
+            <button type="button" class="tab-btn" onclick="switchTab('sms', event)">
+                <i class="fa-solid fa-comment-sms"></i> SMS Scanner
+            </button>
+            <button type="button" class="tab-btn" onclick="switchTab('history', event)">
+                <i class="fa-solid fa-clock-rotate-left"></i> History
+            </button>
+            <button type="button" class="tab-btn" onclick="switchTab('education', event)">
+                <i class="fa-solid fa-book"></i> Learn
+            </button>
+            <button type="button" class="tab-btn" onclick="switchTab('tools', event)">
+                <i class="fa-solid fa-wrench"></i> Tools
+            </button>
+            <button type="button" class="tab-btn" onclick="switchTab('settings', event)">
+                <i class="fa-solid fa-gear"></i> Settings
+            </button>
+            <button type="button" class="tab-btn" onclick="switchTab('about', event)">
+                <i class="fa-solid fa-circle-info"></i> About
+            </button>
+            <button type="button" class="tab-btn" onclick="toggleTheme()">
+                <i class="fa-solid fa-lightbulb"></i> Theme
+            </button>
+        </div>
+
+        <!-- === TAB 1: URL SCANNER === -->
+        <div id="urlPanel" class="panel active">
+            <label>1. Claimed Service</label>
+            <div class="input-group">
+                <select id="serviceSelect" title="Select claimed service"></select>
+            </div>
+
+            <label>2. Suspicious Link</label>
+            <div class="input-group">
+                <input type="text" id="urlInput" placeholder="https://..." autocomplete="off">
+                <div class="util-btn-group">
+                    <button type="button" class="util-btn" onclick="pasteTo('urlInput')">Paste</button>
+                    <button type="button" class="util-btn" onclick="clearInput('urlInput', 'urlResultArea')">Clear</button>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button type="button" class="scan-btn scan-btn--auto" onclick="scanURL()">Scan Link</button>
+                <button type="button" class="small ghost" id="startQrBtn" onclick="startQR()">
+                    <i class="fa-solid fa-qrcode"></i> Start QR Scan
+                </button>
+                <button type="button" class="small ghost hidden" id="stopQrBtn" onclick="stopQR()">
+                    <i class="fa-solid fa-stop"></i> Stop QR
+                </button>
+                <button type="button" class="small ghost" onclick="copyResult('urlStatusBox')">
+                    <i class="fa-solid fa-copy"></i> Copy Result
+                </button>
+            </div>
+
+            <!-- QR Reader -->
+            <div id="qrRegion">
+                <div id="qr-reader"></div>
+                <p class="qr-instruction">
+                    Point your camera at a QR code to scan. Detected text will populate the URL field.
+                </p>
+            </div>
+
+            <!-- URL RESULT AREA -->
+            <div id="urlResultArea" class="result-area">
+                <div id="urlStatusBox" class="result-box"></div>
+
+                <!-- PRECAUTIONS FOR LINKS -->
+                <div id="urlPrecautions" class="precaution-box hidden">
+                    <h3>
+                        <i class="fa-solid fa-triangle-exclamation warning-icon"></i>
+                        Action Plan: Phishing Link
+                    </h3>
+                    <ul>
+                        <li><b>Do NOT click:</b> Close the website immediately.</li>
+                        <li><b>Check URL:</b> Look for typos (e.g., 'amaz0n.com').</li>
+                        <li><b>Credentials:</b> If you entered a password, change it now.</li>
+                        <li><b>Report:</b> Flag the message as spam.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- === TAB 2: SMS SCANNER === -->
+        <div id="smsPanel" class="panel">
+            <label>Message Content</label>
+            <div class="input-group">
+                <textarea id="smsInput" placeholder="e.g., 'Your account is blocked...'"></textarea>
+                <div class="util-btn-group">
+                    <button type="button" class="util-btn" onclick="pasteTo('smsInput')">Paste</button>
+                    <button type="button" class="util-btn" onclick="clearInput('smsInput', 'smsResultArea')">Clear</button>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button type="button" class="scan-btn scan-btn--auto" onclick="scanSMS()">Analyze SMS</button>
+                <button type="button" class="small ghost" onclick="copyResult('smsStatusBox')">
+                    <i class="fa-solid fa-copy"></i> Copy Result
+                </button>
+            </div>
+
+            <!-- SMS RESULT AREA -->
+            <div id="smsResultArea" class="result-area">
+                <div id="smsStatusBox" class="result-box"></div>
+
+                <!-- PRECAUTIONS FOR SMS -->
+                <div id="smsPrecautions" class="precaution-box hidden">
+                    <h3>
+                        <i class="fa-solid fa-triangle-exclamation warning-icon"></i>
+                        Action Plan: Smishing (SMS Scam)
+                    </h3>
+                    <ul>
+                        <li><b>Do NOT reply:</b> Confirming your number leads to more spam.</li>
+                        <li><b>Verify independently:</b> Call the bank using the number on your card.</li>
+                        <li><b>Ignore threats:</b> "Account Suspended" is a common scare tactic.</li>
+                        <li><b>No installs:</b> Never download apps from SMS links.</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- === TAB 3: HISTORY === -->
+        <div id="historyPanel" class="panel">
+            <h3 class="section-title">Scan History</h3>
+            <p class="muted small-text">
+                Your last 100 scans will appear here. You can export history below.
+            </p>
+            <div class="action-row">
+                <button type="button" class="small ghost" onclick="exportCSV()">
+                    <i class="fa-solid fa-file-csv"></i> Export CSV
+                </button>
+                <button type="button" class="small ghost" onclick="exportTXT()">
+                    <i class="fa-solid fa-file-lines"></i> Export TXT
+                </button>
+                <button type="button" class="small ghost" onclick="exportPDF()">
+                    <i class="fa-solid fa-file-pdf"></i> Export PDF
+                </button>
+                <button type="button" class="small ghost" onclick="clearHistory()">
+                    <i class="fa-solid fa-trash"></i> Clear History
+                </button>
+            </div>
+            <ul id="historyList" class="history-list"></ul>
+        </div>
+
+        <!-- === TAB 4: ABOUT === -->
+        <div id="aboutPanel" class="panel">
+            <h3 class="section-title">About PhishGuard Pro</h3>
+            <p class="muted body-text">
+                PhishGuard Pro is an advanced social-engineering protection tool designed to
+                help users detect suspicious links, SMS scams, and phishing attempts.
+                <br><br>
+                <b>Version:</b> 2.1<br>
+                <b>Developer:</b> You (Custom Build)<br>
+                <b>Tech:</b> Pure HTML + CSS + JavaScript (No external backend needed).<br>
+                <b>Extras:</b> Camera QR scanning, export history (CSV/TXT/PDF).
+            </p>
+        </div>
+
+        <!-- === TAB 5: EDUCATION === -->
+        <div id="educationPanel" class="panel">
+            <h3 class="section-title">Learn About Scams</h3>
+            <p class="muted body-text">
+                Understanding scams helps you avoid them. Below are the most common techniques used by attackers:
+            </p>
+            <ul class="education-list">
+                <li><b>Urgency Pressure:</b> Messages that say “your account will close in 30 minutes.”</li>
+                <li><b>Fake Rewards:</b> “You won a prize!” scams to trick you.</li>
+                <li><b>Credential Theft:</b> Fake login pages stealing passwords.</li>
+                <li><b>Identity Spoofing:</b> Attackers pretending to be banks or government.</li>
+            </ul>
+        </div>
+
+        <!-- === TAB 6: TOOLS === -->
+        <div id="toolsPanel" class="panel">
+            <h3 class="section-title">Security Tools</h3>
+            <div class="spaced">
+                <h4 class="sub-heading">Password Strength Tester</h4>
+                <input id="pwTest" type="text" placeholder="Enter password to check" class="pw-input">
+                <button type="button" onclick="testPassword()" class="scan-btn scan-btn--spaced">
+                    Check Strength
+                </button>
+                <div id="pwResult" class="muted small-text"></div>
+            </div>
+
+            <div class="spaced">
+                <h4 class="sub-heading">Generate Strong Password</h4>
+                <button type="button" onclick="generatePassword()" class="small ghost">Generate</button>
+                <div id="genPw" class="muted small-text"></div>
+            </div>
+        </div>
+
+        <!-- === TAB 7: SETTINGS === -->
+        <div id="settingsPanel" class="panel">
+            <h3 class="section-title">Settings</h3>
+            <div class="settings-body">
+                <label><input type="checkbox" id="notifToggle"> Enable Notifications</label><br>
+                <label><input type="checkbox" id="soundToggle"> Enable Sound Alerts</label><br>
+                <label><input type="checkbox" id="autoScanToggle"> Auto-Scan Pasted Links</label>
+            </div>
+        </div>
+
+        <!-- FOOTER TIPS -->
+        <div class="tips-section">
+            <label>Security Tips</label>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <i class="fa-solid fa-lock"></i>
+                    <b>Check HTTPS</b>
+                </div>
+                <div class="tip-card">
+                    <i class="fa-solid fa-spell-check"></i>
+                    <b>No Typos</b>
+                </div>
+                <div class="tip-card">
+                    <i class="fa-solid fa-clock"></i>
+                    <b>No Rush</b>
+                </div>
+                <div class="tip-card">
+                    <i class="fa-solid fa-key"></i>
+                    <b>Use 2FA</b>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- External libs for QR and PDF -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- Main Script -->
+    <script src="script.js"></script>
+</body>
+</html>
